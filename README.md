@@ -1,5 +1,7 @@
 # msg-time
 
+**Conventional commit message enforcer**
+
 ![banner](banner.svg)
 
 ![npm](https://img.shields.io/npm/v/msg-time)
@@ -7,8 +9,6 @@
 ![npm type definitions](https://img.shields.io/npm/types/msg-time)
 ![license](https://img.shields.io/npm/l/msg-time)
 [![install size](https://packagephobia.com/badge?p=msg-time)](https://packagephobia.com/result?p=msg-time)
-
-Conventional commit message enforcer 🧐
 
 **`msg-time`** checks that your commit message is a Conventional Commit. If it doesn't match the
 spec, it will block the commit and print out a helpful error message (like `commitlint`).

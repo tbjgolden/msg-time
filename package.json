@@ -20,9 +20,9 @@
   "scripts": {
     "build": "xnr ./.scripts/build.ts",
     "check-build": "xnr ./.scripts/checkBuild.ts",
-    "test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' npx jest",
-    "coverage": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' npx jest --coverage",
-    "watch": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' npx jest --watch",
+    "test": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' npx jest --passWithNoTests",
+    "coverage": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' npx jest --passWithNoTests --coverage",
+    "watch": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' npx jest --passWithNoTests --watch",
     "prepare": "simple-git-hooks"
   },
   "devDependencies": {
