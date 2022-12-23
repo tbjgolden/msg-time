@@ -1,5 +1,5 @@
 import { isFile } from "easier-node";
-import { execSync } from "node:child_process";
+import { exec } from "node:child_process";
 import fs from "node:fs/promises";
 import { join } from "node:path/posix";
 import { getPackageJson } from "./lib/package";
@@ -24,15 +24,26 @@ if (await isFile("cli/index.ts")) {
         console.log(`"${cliName}": "${cliFilePath}" is not an executable file`);
         process.exit(1);
       }
-      const command = `${cliFilePath} arg1 arg2`;
-      const stdout = execSync(command).toString();
-      const expected = `Hello arg1 arg2!\n`;
-      if (stdout !== expected) {
+      await fs.writeFile(".git/COMMIT_EDITMSG", "bug: should use fix instead of bug\n");
+      const command = `${cliFilePath}`;
+      const stdout = await new Promise<string>((resolve) => {
+        exec(command, (_, stdout) => {
+          resolve(stdout);
+        });
+      });
+      const firstLines = stdout
+        .split("\n")
+        .map((line) => line.trim())
+        .slice(0, 5)
+        .join("\n");
+      const expected =
+        "msg-time blocked your commit due to an invalid commit message\n\ncommit should start with a valid commit type\nvalid ones:\nbuild chore ci docs feat fix perf refactor revert style test";
+      if (firstLines !== expected) {
         console.log(`unexpected response when running: ${command}\n`);
         console.log("expected:");
         console.log(JSON.stringify(expected));
         console.log("actual:");
-        console.log(JSON.stringify(stdout));
+        console.log(JSON.stringify(firstLines));
         process.exit(1);
       }
     }
