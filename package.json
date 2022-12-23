@@ -47,6 +47,18 @@
   "files": [
     "dist"
   ],
+  "keywords": [
+    "conventional",
+    "commit",
+    "commits",
+    "checker",
+    "lint",
+    "linter",
+    "commitlint",
+    "cli",
+    "message",
+    "msg"
+  ],
   "simple-git-hooks": {
     "commit-msg": "npx xnr cli/index.ts",
     "pre-commit": "npx lint-time",
