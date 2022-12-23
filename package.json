@@ -1,6 +1,7 @@
 {
   "name": "msg-time",
   "version": "0.1.0",
+  "description": "Conventional commit message enforcer 🧐",
   "license": "Apache-2.0",
   "homepage": "https://github.com/tbjgolden/msg-time",
   "author": {
