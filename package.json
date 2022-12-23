@@ -2,9 +2,6 @@
   "name": "msg-time",
   "version": "0.1.0",
   "license": "Apache-2.0",
-  "main": "dist/cjs/index.cjs",
-  "module": "dist/esm/index.mjs",
-  "types": "dist/esm/index.d.ts",
   "homepage": "https://github.com/tbjgolden/msg-time",
   "author": {
     "name": "Tom Golden",
@@ -50,7 +47,7 @@
     "dist"
   ],
   "simple-git-hooks": {
-    "commit-msg": "npx --no -- commitlint --edit \"\"",
+    "commit-msg": "npx xnr cli/index.ts",
     "pre-commit": "npx lint-time",
     "pre-push": "npx jest -o --coverage=false --passWithNoTests"
   },
