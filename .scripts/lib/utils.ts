@@ -1,26 +1,25 @@
-import fs from "node:fs/promises";
-import path from "node:path";
+import { lstat, readFile } from "node:fs/promises";
 
-export const getPackageRoot = async (): Promise<string> => {
-  let directory = process.cwd();
-
-  do {
-    try {
-      const stats = await fs.stat(path.join(directory, "package.json"));
-      if (stats.isFile()) {
-        break;
-      }
-    } catch {
-      //
-    }
-    directory = path.dirname(directory);
-  } while (directory !== "/");
-
-  if (directory === "/") {
-    throw new Error("package directory not found");
+export const isDirectory = async (path: string): Promise<boolean> => {
+  try {
+    return (await lstat(path)).isDirectory();
+  } catch {
+    return false;
   }
+};
 
-  return directory;
+export const isFile = async (path: string): Promise<boolean> => {
+  try {
+    return (await lstat(path)).isFile();
+  } catch {
+    return false;
+  }
+};
+
+export const checkDirectory = async () => {
+  if (!(await isFile(process.cwd() + "/package.json"))) {
+    throw new Error("must be run from package root");
+  }
 };
 
 type JSONPrimitive = string | number | boolean | null;
@@ -37,6 +36,7 @@ export type PackageJson = Partial<{
   license: string;
   main: string;
   module: string;
+  exports: string;
   types: string;
   browser: string;
   keywords: string[];
@@ -111,7 +111,7 @@ const expectToBeStringOrStringMap = expecter((value) => {
 });
 
 export const getPackageJson = async (): Promise<PackageJson> => {
-  const json = await fs.readFile(path.join(await getPackageRoot(), "package.json"), "utf8");
+  const json = await readFile(process.cwd() + "/package.json", "utf8");
   const obj = (JSON.parse(json) ?? {}) as JSONObject;
   let key = "";
   try {
@@ -123,6 +123,7 @@ export const getPackageJson = async (): Promise<PackageJson> => {
       "license",
       "main",
       "module",
+      "exports",
       "types",
       "browser",
     ]) {
@@ -156,4 +157,75 @@ export const getPackageJson = async (): Promise<PackageJson> => {
     throw new Error(`Unexpected type found in package.json for "${key}"`);
   }
   return obj as PackageJson;
+};
+
+export const readJSON = <T = unknown>(jsonString: string): T => {
+  return JSON.parse(removeJSONComments(jsonString));
+};
+
+export const writeJSON = <T extends JSONObject | JSONArray>(jsonString: T): string => {
+  return JSON.stringify(jsonString);
+};
+
+export const removeJSONComments = (jsonString: string): string => {
+  let isInsideString = false;
+  let isInsideComment: 0 | 1 | 2 = 0;
+  let offset = 0;
+  let result = "";
+
+  for (let index = 0; index < jsonString.length; index += 1) {
+    const currentCharacter = jsonString[index];
+    const nextCharacter = jsonString[index + 1];
+
+    if (!isInsideComment && currentCharacter === '"' && !isEscaped(jsonString, index)) {
+      isInsideString = !isInsideString;
+    }
+
+    if (isInsideString) {
+      continue;
+    }
+
+    if (!isInsideComment && currentCharacter + nextCharacter === "//") {
+      result += jsonString.slice(offset, index);
+      offset = index;
+      isInsideComment = 1;
+      index += 1;
+    } else if (isInsideComment === 1 && currentCharacter + nextCharacter === "\r\n") {
+      index += 1;
+      isInsideComment = 0;
+      result = String(result);
+      offset = index;
+      continue;
+    } else if (isInsideComment === 1 && currentCharacter === "\n") {
+      isInsideComment = 0;
+      result = String(result);
+      offset = index;
+    } else if (!isInsideComment && currentCharacter + nextCharacter === "/*") {
+      result += jsonString.slice(offset, index);
+      offset = index;
+      isInsideComment = 2;
+      index += 1;
+      continue;
+    } else if (isInsideComment === 2 && currentCharacter + nextCharacter === "*/") {
+      index += 1;
+      isInsideComment = 0;
+      result = String(result);
+      offset = index + 1;
+      continue;
+    }
+  }
+
+  return result + (isInsideComment ? "" : jsonString.slice(offset));
+};
+
+const isEscaped = (jsonString: string, quotePosition: number): boolean => {
+  let index = quotePosition - 1;
+  let backslashCount = 0;
+
+  while (jsonString[index] === "\\") {
+    index -= 1;
+    backslashCount += 1;
+  }
+
+  return backslashCount % 2 === 1;
 };
