@@ -1,6 +1,6 @@
 {
   "name": "msg-time",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Conventional commit message enforcer 🧐",
   "license": "Apache-2.0",
   "homepage": "https://github.com/tbjgolden/msg-time",
@@ -29,7 +29,6 @@
     "@types/jest": "^29.5.2",
     "@typescript-eslint/eslint-plugin": "^5.60.0",
     "@typescript-eslint/parser": "^5.60.0",
-    "easier-node": "^0.0.1-beta.2",
     "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
